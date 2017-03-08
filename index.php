@@ -2,10 +2,10 @@
 	
 	if(!empty($_POST['user']) and !empty($_POST['pass']) and isset($_POST['user']) and isset($_POST['pass']))
 	{
-		$username=htmlspecialchars(mysql_real_escape_string($_POST['user']));
-		$password=htmlspecialchars(mysql_real_escape_string($_POST['pass']));
+		$username=htmlspecialchars($_POST['user']);
+		$password=htmlspecialchars($_POST['pass']);
 
-		
+		//mysql_real_escape_string
 	}	
 
 ?>
@@ -15,13 +15,18 @@
 
 <html>
 <head>
-<a href="#" data-toggle="modal" data-target="#login-modal">Login</a>
 
-<div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+<link rel="stylesheet" type="text/css" href="static/main.css">
+
+</head>
+<body>
+
+
+<div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     	  <div class="modal-dialog">
 				<div class="loginmodal-container">
 					<h1>Ulogujte se za nastavak</h1><br>
-				  <form>
+				  <form method="post">
 					<input type="text" name="user" placeholder="Username">
 					<input type="password" name="pass" placeholder="Password">
 					<input type="submit" name="login" class="login loginmodal-submit" value="Login">
@@ -33,6 +38,6 @@
 				</div>
 			</div>
 		  </div>
-</head>
+</body>
 
 </html>
