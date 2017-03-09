@@ -4,12 +4,13 @@
 	{
 		$username=htmlspecialchars($_POST['user']);
 		$password=htmlspecialchars($_POST['pass']);
-
-		//mysql_real_escape_string
+		require('db_con.php');
+		$db = new DBConn();
+		$db->sign_in($username, $password, 1);		
+		header("Location: http://localhost/students/home.php");
 	}	
 
 ?>
-
 
 <!DOCTYPE HTML>
 
@@ -25,8 +26,8 @@
 <div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     	  <div class="modal-dialog">
 				<div class="loginmodal-container">
-					<h1>Ulogujte se za nastavak</h1><br>
-				  <form method="post">
+					<h1>Login</h1><br>
+				  <form method="post" action="login.php">
 					<input type="text" name="user" placeholder="Username">
 					<input type="password" name="pass" placeholder="Password">
 					<input type="submit" name="login" class="login loginmodal-submit" value="Login">
