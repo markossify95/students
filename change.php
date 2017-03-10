@@ -1,76 +1,48 @@
 <?php
-
 	session_start();
-	require ('db_con.php');
+
+	require('db_con.php');	
+
+	$old_index=$_GET['v'];
+	$id=$db->conn->query("SELECT id FROM user WHERE index_no='$old_index'")->fetch_object();
 	
+	if($id)
+	{
+		if(isset($_POST['uname']) and !empty($_POST['uname']))
+		{
+			$username=$_POST['uname'];
+			$db->conn->query("UPDATE `user` SET `username` = '$username' WHERE id='$id->id'");	
+					
+		}
+		if(isset($_POST['pwd']) and !empty($_POST['pwd']))
+		{
+			$password=$password = hash_hmac ( "sha1",  $this->conn->real_escape_string($password), "budweiser");
+			$db->conn->query("UPDATE `user` SET password='$password' WHERE id='$id->id'");			
+		}
+		if(!empty($_POST['ind']) and isset($_POST['ind']))
+		{
+			$ind=$_POST['ind'];
+			$db->conn->query("UPDATE `user` SET index_no='$ind' WHERE id='$id->id'");	
+		} 
+		if(isset($_POST['role']))
+		{
+			if($_POST['role'] == 1) 
+			{
+				$db->conn->query("UPDATE `user` SET role='1' WHERE id='$id->id'");
+			}
+			else if($_POST['role'] == 0)
+			{
+				$db->conn->query("UPDATE `user` SET role='0' WHERE id='$id->id'");
+			}
+		}
+	}
+	else
+	{
+		echo "baja ne postoji";
+	}
 
-	if(!isset($_SESSION['reg']))
-	{
-		header('Location: login.php');
-	}
-	if(isset($_POST['add']))
-	{
-		if(!empty($_POST['uname']) and isset($_POST['uname']) and isset($_POST['pwd']) and !empty($_POST['pwd']) and !empty($_POST['ind']) and isset($_POST['ind']) and ($_POST['role'] == 1 or $_POST['role'] == 0) )
-		{
-			$db -> sign_up($_POST['uname'], $_POST['pwd'], $_POST['ind'], $_POST['role']);
-		}
-		else
-		{
-			echo "<script>alert('Nije uspelo');</script>";
-		}
-	}
-	else if (isset($_POST['delete']))
-	{
-		if(!empty($_POST['uname']) and isset($_POST['uname']) and isset($_POST['pwd']) and !empty($_POST['pwd']) and !empty($_POST['ind']) and isset($_POST['ind']) and ($_POST['role'] == 1 or $_POST['role'] == 0) )
-		{	
-			
-			$db -> delete($_POST['uname'], $_POST['pwd'], $_POST['ind'], $_POST['role']);
-		}
-		else if(!empty($_POST['ind']) and isset($_POST['ind'])) 
-		{
-			$db->delete_i($_POST['ind']);
-		}
-		else
-		{
-			echo "<script>alert('Nije uspelo');</script>";
-			
-		}
-	}
-	else if (isset($_POST['search']))
-	{
-		$str= "location: search.php?";
-		$d=0;
-		if(!empty($_POST['ind']))
-		{
-			$str.="a=". $_POST['ind'];
-			$d++;
-		}
-		if(!empty($_POST['uname']))
-		{
-			if($d)
-				$str.="&";
-			$str.="b=". $_POST['uname'];
-		}
-		$str.="&s=".$_POST['role'];
-		header($str);
-	}
-	else if(isset($_POST['change']))
-	{
 
-		if(isset($_POST['ind']) and !empty($_POST['ind']))
-		{
-
-			$n=$_POST['ind'];
-			header("location: change.php?v=$n");
-		}
-		else
-		{
-			echo "<script>alert('Unesi broj indeksa');</script>";
-		}
-	}
-	
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -80,14 +52,14 @@
 		<link rel="stylesheet" href="static/home.css">
 				
 
-		<title>Novi korisnik</title>
+		<title>Promena podataka</title>
 	</head>
 	<body>
 		<div class="container">
 			<div class="row main">
 				<div class="main-login main-center">
-				<h2>Unos novog korisnika</h2>
-					<form action="user_conf.php"  method="POST">
+				<h2>Promeni podatke</h2>
+					<form action=<?php echo "\"change.php?v=". $_GET['v'] . "\""?>  method="POST">
 						
 						<div class="form-group">
 							<label for="name" class="cols-sm-2 control-label">Username</label>
@@ -135,19 +107,11 @@
 							</div>
 						</div>
 						<div>
+							
 							<span class="form-group ">
-								<input type="submit" id="button" value="Dodaj" name="add" class="btn btn-primary btn-lg btn-block login-button"/>
+								<input type="submit" id="button" value="Izmeni" name="search" class="btn btn-primary btn-lg btn-block login-button"/>
 							</span>
-
-							<span class="form-group ">
-								<input type="submit" id="button" value="Obrisi" name="delete" class="btn btn-primary btn-lg btn-block login-button"/>
-							</span>
-							<span class="form-group ">
-								<input type="submit" id="button" value="Izmeni" name="change" class="btn btn-primary btn-lg btn-block login-button"/>
-							</span>
-							<span class="form-group ">
-								<input type="submit" id="button" value="Pretrazi" name="search" class="btn btn-primary btn-lg btn-block login-button"/>
-							</span>
+							
 						<div>
 						<br>
 						<span class="form-group">

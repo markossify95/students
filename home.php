@@ -14,6 +14,7 @@
 		{
 			$index=$_POST['index_no'];
 			$act=$_POST['activity'];
+			
 			$val=$_POST['value'];
 
 			$db->add_activity($index, $act, $val);	
