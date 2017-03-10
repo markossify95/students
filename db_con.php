@@ -1,68 +1,115 @@
 <?php
 
 	
-	class DBConn{
+	class DBConn
+	{
 		public $conn;
 
-		function __construct(){
+		function __construct()
+		{
+			//connect
 			$this->conn = new mysqli("localhost","root","","students");
-			if (!$this->conn){
-	  			echo "Failed to connect to MySQL: " . $this->conn->connect_error;
+			if (!$this->conn)
+			{
+	  			echo "Failed to connect to MySQL";
 	  		}
 		}
 
-		// Check connection
-		//$sql="select * from person where username=$username and password = $password";
-
-		//	if($valid = mysql_query($sql))
-		//	{
-		//		if($fetch = mysql_fetch_assoc($valid))
-		//		{
-		//			$uid = $fetch['id'];
-		//			$index_num = $fetch['index_num'];
-	  	//
-		//		}
-		//	}
-
-	  	function sign_up($username, $password, $index_no){
-	  	
+	  	function sign_up($username, $password, $index_no, $role)
+	  	{
+	  		//prevent sql injection
 	  		$username = $this->conn->real_escape_string($username);
-	  		$password = hash_hmac ( "sha1",  $this->conn->real_escape_string($password), "kuracpickagovnosisa");
+	  		$password = hash_hmac ( "sha1",  $this->conn->real_escape_string($password), "budweiser");
 
-	  		$stmt = $this->conn->prepare("INSERT INTO user (username, password, index_no) VALUES (?, ?, ?)");	
-	  		$stmt->bind_param("sss", $username, $password, $index_no);
+	  		//secound prevention from mysql injection
+	  		$stmt = $this->conn->prepare("INSERT INTO user (username, password, index_no, role) VALUES (?, ?, ?, ?)");	
+	  		$stmt->bind_param("sssi", $username, $password, $index_no, $role);
 	  		$stmt->execute();
 	  		
 
-			echo "<script>console.log(\'New records created successfully\');</script>";
+			echo "<script>alert(\'Dodat je novi korisnik\');</script>";
+	  		
 	  	}
 
-	  	function sign_in($username, $password, $role)
+	  	function sign_in($username, $password)
 	  	{
-	  		$password = hash_hmac ( "sha1",  $this->conn->real_escape_string($password), "kuracpickagovnosisa");
+	  		$password = hash_hmac ( "sha1",  $this->conn->real_escape_string($password), "budweiser");
 	  		$username = $this->conn->real_escape_string($username);
+	  	
 	  		
 	  		$res = $this->conn->query("SELECT id, username, password, index_no, role FROM user WHERE username = '$username' AND password = '$password' ")
 	  		->fetch_object();	
 	  		
-	  		if($res){
+	  		if($res)
+	  		{
+	  			//start session
+
 	  			session_start();
 
-				if(!isset($_SESSION['reg'])){
+				if(!isset($_SESSION['reg']))
+				{
 					$_SESSION['reg'] = true;
 				}
 
-	  			header('location: http://localhost/students/home.php');
+				if(isset($_SESSION['reg']))
+				{
+					if($res->role == 1)
+	  					header('location: home.php');
+					else
+						header("location: korisnik.php");
+				}
 	  		}
+
+	  		
 	  	}
+
   		function add_activity($index_no, $activity, $value){
-  			session_start();
-  			if (!$_SESSION['reg']) {
-			 	header('Location: http://localhost/students/login.php');   
-			}else{
-				print_r($_SESSION);
-				echo "MOZETE DA UNOSITE, WORKING ON IT DUVAJ GAAAAAA RADIIIIIIIII!!!!!!!!!!";
+  			
+  			if (!$_SESSION['reg']) 
+  			{
+			 	header('Location: login.php');   
 			}
+			else
+			{
+				//UPDATE `result` SET `hw2` = '31' WHERE `result`.`id` = 0;
+				$query = "SELECT id FROM user WHERE index_no = '$index_no'";
+
+				$result=$this->conn->query($query) -> fetch_object();
+
+				$query="UPDATE `result` SET ";
+				switch ($activity) 
+				{
+					case '1':
+						$query .= "hw1 = '$value' WHERE uid = '$result->id'";
+						break;
+					case '2':
+						$query .= "hw2 = '$value' WHERE uid = '$result->id'";
+						break;
+					case '3':
+						$query .= "hw3 = '$value' WHERE uid = '$result->id'";
+						break;
+					case '4':
+						$query .= "hw4 = '$value' WHERE uid = '$result->id'";
+						break;
+					case '5':
+						$query .= "bonus = '$value' WHERE uid = '$result->id'";
+						break;
+					case '6':
+						$query .= "t_test  = '$value' WHERE uid = '$result->id'";
+						break;
+					case '7':
+						$query .= "p_test  = '$value' WHERE uid = '$result->id'";
+						break;
+					case '8':
+						$query .= "project  = '$value' WHERE uid = '$result->id'";
+						break;
+				}
+				
+				
+				$this->conn->query($query);
+
+			}
+  		
   		}
 
   		function sign_out(){
@@ -71,7 +118,37 @@
   			session_destroy();
   			header("Location: login.php");
   		}
-  }
+
+  		//nije gotova funkcija
+  		function delete($username, $password, $index_no, $role)
+	  	{
+	  		//prevent sql injection
+	  		session_start();
+
+	  		$username = $this->conn->real_escape_string($username);
+	  		$password = hash_hmac ( "sha1",  $this->conn->real_escape_string($password), "budweiser");
+
+	  		//secound prevention from mysql injection
+	  		$stmt = $this->conn->prepare("INSERT INTO user (username, password, index_no, role) VALUES (?, ?, ?, ?)");	
+	  		$stmt->bind_param("sssi", $username, $password, $index_no, $role);
+	  		$stmt->execute();
+	  		
+
+			echo "<script>console.log('Korisnik je uspesno obrisan!');</script>";
+	  		
+	  	}	
+	  	
+	  	function change($username, $password, $index_no, $role)
+	  	{
+	  		session_start();
+
+	  		//prevent sql injection
+
+	  		$username = $this->conn->real_escape_string($username);
+	  		$password = hash_hmac ( "sha1",  $this->conn->real_escape_string($password), "budweiser");
+
+	  	}
+ 	}
 
 
   $db = new DBConn();
